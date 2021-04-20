@@ -15,11 +15,8 @@ namespace ariel
             string unit;  
     
         public:
-            NumberWithUnits(double num , string unit)
-            {
-                num=num;
-                unit=unit;
-            }
+            NumberWithUnits(double num , const string &unit);
+        
             double getNum()const{
                 return num;
             }
@@ -58,7 +55,7 @@ namespace ariel
             //================ * ====================//
             friend NumberWithUnits operator*(const double n, const NumberWithUnits &c);
             friend NumberWithUnits operator*(const NumberWithUnits &c, const double n);
-            
+
             friend NumberWithUnits operator*=(const double n, const NumberWithUnits &c);
             friend NumberWithUnits operator*=(const NumberWithUnits &c, const double n);
 

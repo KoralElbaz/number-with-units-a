@@ -9,10 +9,14 @@ namespace ariel
 {
     static map<string, map<string, double>> unitList; 
 
-    static void read_units(std::ifstream &units_file)
+    NumberWithUnits::NumberWithUnits(double num , const string &unit)
     {
-        ifstream inFile;
-    }   
+        cout << num << unit<<endl;
+        this->num = num;
+        this->unit = unit;
+    }
+
+
     //============== help functions ============//
     double integrityCheck(double val , string src , string dest){
         if(src==dest){
@@ -22,10 +26,39 @@ namespace ariel
            return (val * unitList.at(src).at(dest));
         }
         catch(const exception& e) {
-            throw invalid_argument{"Illegal unit!"};
+            throw invalid_argument{"Types not from the same system!"};
         }
 
     }
+
+    void incomeUnit(const string unit1, const string unit2){
+        for (auto map: unitList[unit2]){
+                double val = unitList[unit1][unit2] * map.second;
+                unitList[unit1][map.first] = val;
+                unitList[map.first][unit1] = 1/val;
+        }
+    }  
+
+    void NumberWithUnits::read_units(std::ifstream &units_file)
+    {
+        string unit1 , unit2 , c;
+        double val1 , val2;
+
+        while(units_file >> val1 >> unit1 >> c  >> val2 >>unit2 )
+        {
+            //cout << val1 << " " <<unit1 << " "<< c  << " "<<val2 <<"  "<<unit2 <<endl;
+            unitList[unit1][unit2]=val2;
+            unitList[unit2][unit1]=1/val2;
+            incomeUnit(unit1, unit2);
+            incomeUnit(unit2, unit1);            
+        }
+        // for (auto pair1 : unitList){
+        //         for (auto pair2 : unitList[pair1.first])
+        //         {
+        //             cout << pair1.first<<" "<< pair2.first<<" "<< pair2.second<<endl;
+        //         }
+        //     }
+    }   
 
 
     //================ + ====================//
@@ -42,7 +75,7 @@ namespace ariel
     }
     NumberWithUnits operator+=(NumberWithUnits &n1, const NumberWithUnits &n2){
         n1.num+= integrityCheck(n2.num,n2.unit , n1.unit );
-        return n1.num;
+        return n1;
     }
 
     //================ - ====================//
@@ -60,8 +93,8 @@ namespace ariel
     }
     NumberWithUnits operator-=(NumberWithUnits &n1, const NumberWithUnits &n2)
     {
-       n1.num+= integrityCheck(n2.num,n2.unit , n1.unit );
-        return n1.num;
+       n1.num-= integrityCheck(n2.num,n2.unit , n1.unit );
+        return n1;
     }
 
     //================ <=> ====================//    V
@@ -102,7 +135,7 @@ namespace ariel
 
     NumberWithUnits operator++(NumberWithUnits &other)
     {
-        return NumberWithUnits(--other.num, other.unit);
+        return NumberWithUnits(++other.num, other.unit);
     }
 
     NumberWithUnits operator++(NumberWithUnits &other , int)
@@ -127,41 +160,26 @@ namespace ariel
 
     NumberWithUnits operator*(const double n, const NumberWithUnits &c)
     {
-        return NumberWithUnits(o.num*n, o.unit);
+        return NumberWithUnits(c.num*n, c.unit);
     }
 
-    NumberWithUnits operator*(const NumberWithUnits &c, const double n);
+    NumberWithUnits operator*(const NumberWithUnits &c, const double n)
     {
-        return NumberWithUnits(o.num*n, o.unit);
+        return NumberWithUnits(c.num*n, c.unit);
 
     }
-
-            
-    NumberWithUnits operator*=(const double n, const NumberWithUnits &c)
-    {
-        c.num*=n;
-        return c;
-    }
-
-    NumberWithUnits operator*=(const NumberWithUnits &c, const double n)
-    {
-        c.num*=n;
-        return c;
-    }
-
-
 
 
     //================ input - output ====================//
     std::ostream &operator<<(std::ostream &os, const NumberWithUnits &o){
-         out << o.num << "[" << o.unit << "]";
-        return out;
+        os << o.num << "[" << o.unit << "]";
+        return os;
     }
 
     std::istream &operator>>(std::istream &is, NumberWithUnits &o){
         string s;
-        in >> o.num >> s >> o.unit;
-        return in;
+        is >> o.num >> s >> o.unit;
+        return is;
     }
 
     
